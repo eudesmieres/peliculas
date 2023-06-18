@@ -4,78 +4,39 @@ const Pelicula = require('../model/Pelicula');
 const router = Router();
 
 
+//http://localhost:3001/searchByName?id=Juana de arcos&pagina=1
+//http://localhost:3001/searchByName?pagina=1
+//Endpoint de búsqueda por título y paginación.
+router.get('/searchByName', async (req, res) => {
+    const { id, pagina } = req.query;
+    const itemsPorPagina = 10; // Número de películas por página
 
-// // Endpoint para importar las películas desde un archivo CSV
-// router.post('/importar-peliculas', (req, res) => {
-//     res.send('ESTA ES LA RUTA DE PELICULAS');
-// });
+    try {
+        let query = 'SELECT * FROM Peliculas';
 
-// // Endpoint para obtener los detalles de una película por su ID.El mismo debe
-// //permitir búsqueda por título y paginación.
-// router.get('/peliculas/:id', (req, res) => {
-//     res.send('ESTA ES LA RUTA DE PELICULAS ID');
-// });
+        if (id) {
+            query += ` WHERE id LIKE '%${id}%'`;
+        }
 
-// // Endpoint de alta, baja, modificación y consulta para un registro de películas
-// router.get('/peliculas', (req, res) => {
-//     res.send('ESTA ES LA RUTA DE PELICULAS');
-// });
+        const offset = (pagina - 1) * itemsPorPagina;
+        query += ` LIMIT ${itemsPorPagina} OFFSET ${offset}`;
 
+        const [peliculas, _] = await Pelicula.sequelize.query(query);
 
-// router.post('/peliculas', async (req, res) => {
-//     const { id, description, premiere } = req.body;
+        if (peliculas.length === 0) {
+            res.status(404).json('No se encontraron películas');
+            return;
+        }
 
-//     try {
-//         const existingPeliculaQuery = `SELECT * FROM Peliculas WHERE id = '${id}'`;
-//         const [existingPelicula, _] = await Pelicula.sequelize.query(existingPeliculaQuery);
-
-//         if (existingPelicula.length > 0) {
-//             res.status(400).json('Ya existe una película con el mismo título');
-//             return;
-//         }
-
-//         const createPeliculaQuery = `INSERT INTO Peliculas (id, description, premiere) VALUES ('${id}', '${description}', ${premiere})`;
-//         await Pelicula.sequelize.query(createPeliculaQuery);
-
-//         res.status(201).json('Película agregada correctamente');
-//     } catch (error) {
-//         console.error('Error al agregar la película:', error);
-//         res.status(500).json('Error al agregar la película');
-//     }
-// });
-
-// router.get('/peliculas/:id', async (req, res) => {
-//     const { id } = req.params;
-
-//     try {
-//         const getPeliculaQuery = `SELECT * FROM Peliculas WHERE id = '${id}'`;
-//         const [pelicula, _] = await Pelicula.sequelize.query(getPeliculaQuery);
-
-//         if (pelicula.length === 0) {
-//             res.status(404).json('No se encontró ninguna película con el ID proporcionado');
-//             return;
-//         }
-
-//         res.status(200).json(pelicula);
-//     } catch (error) {
-//         console.error('Error al obtener la película:', error);
-//         res.status(500).json('Error al obtener la película');
-//     }
-// });
-
-// router.get('/peliculas', async (req, res) => {
-//     try {
-//         const getAllPeliculasQuery = 'SELECT * FROM Peliculas';
-//         const [peliculas, _] = await Pelicula.sequelize.query(getAllPeliculasQuery);
-
-//         res.status(200).json(peliculas);
-//     } catch (error) {
-//         console.error('Error al obtener las películas:', error);
-//         res.status(500).json('Error al obtener las películas');
-//     }
-// });
+        res.status(200).json(peliculas);
+    } catch (error) {
+        console.error('Error al obtener las películas:', error);
+        res.status(500).json('Error al obtener las películas');
+    }
+});
 
 
+//http://localhost:3001/peliculas
 // Endpoint para realizar todas las operaciones (Alta, baja, modificación y consulta para un registro de películas) en un solo Endpoint
 router.route('/peliculas')
     .post(async (req, res) => {
@@ -152,7 +113,5 @@ router.route('/peliculas')
             res.status(500).json('Error al obtener la película');
         }
     });
-
-
 
 module.exports = router;
