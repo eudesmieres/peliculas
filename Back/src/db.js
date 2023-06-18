@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize');
 require('dotenv').config();
 
+
 //variables de entorno
 const {
     DB_USER,
@@ -14,14 +15,18 @@ const sequelize = new Sequelize(`mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/pe
     logging: false,
 });
 
-const connect = async () => {
+// Sincronización del modelo con la base de datos
+(async () => {
     try {
         await sequelize.authenticate();
-        console.log('Conexion exitosa.');
+        await sequelize.sync();
+        console.log('Modelo sincronizado correctamente con la base de datos.');
     } catch (error) {
-        console.error('fallo la base', error);
+        console.error('Error al sincronizar el modelo:', error);
     }
+})();
 
-}
 
-connect();
+
+
+module.exports = sequelize;
