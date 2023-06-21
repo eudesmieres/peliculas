@@ -9,6 +9,7 @@ const router = Router();
 
 
 
+
 // Configuración de multer
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
