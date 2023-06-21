@@ -24,38 +24,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-//http://localhost:3001/searchByName?id=Juana de arcos&pagina=1
-//http://localhost:3001/searchByName?pagina=1
-//Endpoint de búsqueda por título y paginación.
-router.get('/searchByName', async (req, res) => {
-    const { id, pagina } = req.query;
-    const itemsPorPagina = 10; // Número de películas por página
-
-    try {
-        let query = 'SELECT * FROM Peliculas';
-
-        if (id) {
-            query += ` WHERE id LIKE '%${id}%'`;
-        }
-
-        const offset = (pagina - 1) * itemsPorPagina;
-        query += ` LIMIT ${itemsPorPagina} OFFSET ${offset}`;
-
-        const [peliculas, _] = await Pelicula.sequelize.query(query);
-
-        if (peliculas.length === 0) {
-            res.status(404).json('No se encontraron películas');
-            return;
-        }
-
-        res.status(200).json(peliculas);
-    } catch (error) {
-        console.error('Error al obtener las películas:', error);
-        res.status(500).json('Error al obtener las películas');
-    }
-});
-
-
 //http://localhost:3001/peliculas
 // Endpoint para realizar todas las operaciones (Alta, baja, modificación y consulta para un registro de películas) en un solo Endpoint
 router.route('/peliculas')
@@ -151,14 +119,14 @@ function uploadCsv(req, res, path) {
         .parse({ delimiter: ';' }) // Agregamos el separador ';' al parser de CSV
         .on('data', (data) => {
             csvFile.push(data);
-            console.log('Fila leída:', data);
+
         })
         .on('end', async () => {
             csvFile.shift();
 
             try {
                 const sequelize = await Pelicula.sequelize.sync();
-                // const importadas = [];
+
                 for (const row of csvFile) {
                     const [id, description, premiere] = row;
 
@@ -192,7 +160,7 @@ function uploadCsv(req, res, path) {
 }
 
 router.get('/search', async (req, res) => {
-    console.log('-----ARRAY DE PELISSSSS:-----', importadas);
+
     const { id, pagina } = req.query;
     const itemsPorPagina = 10; // Número de películas por página
 
