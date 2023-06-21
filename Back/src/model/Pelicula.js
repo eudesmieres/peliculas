@@ -15,7 +15,7 @@ const Pelicula =
                 allowNull: false,
             },
             premiere: {
-                type: DataTypes.INTEGER,//numeros enteros
+                type: DataTypes.STRING,//numeros enteros
                 allowNull: false,
             },
         },

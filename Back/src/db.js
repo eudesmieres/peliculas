@@ -19,7 +19,7 @@ const sequelize = new Sequelize(`mysql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/pe
 (async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        await sequelize.sync({ force: true });
         console.log('Modelo sincronizado correctamente con la base de datos.');
     } catch (error) {
         console.error('Error al sincronizar el modelo:', error);

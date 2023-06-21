@@ -1,7 +1,26 @@
 const { Router } = require('express');
+const path = require('path');
+const multer = require('multer');
 const axios = require('axios');
 const Pelicula = require('../model/Pelicula');
+const csv = require('fast-csv');
+const fs = require('fs');
 const router = Router();
+
+
+
+// Configuración de multer
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, '/Users/eudesmieres/desktop/peliculas/Back/uploads');
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + '.csv');
+    }
+});
+
+const upload = multer({ storage: storage });
 
 
 //http://localhost:3001/searchByName?id=Juana de arcos&pagina=1
@@ -113,5 +132,62 @@ router.route('/peliculas')
             res.status(500).json('Error al obtener la película');
         }
     });
+
+
+
+// Endpoint para subir el archivo CSV y persistir las películas en la base de datos
+router.post('/importarPeliculas', upload.single('csvFile'), async (req, res) => {
+    console.log(req.file.path);
+    uploadCsv(req, res, __dirname + "/uploads/" + req.file.fieldname);
+});
+
+function uploadCsv(req, res, path) {
+    let stream = fs.createReadStream(req.file.path);
+    let csvFile = [];
+    let fileStream = csv
+        .parse({ delimiter: ';' }) // Agregamos el separador ';' al parser de CSV
+        .on('data', (data) => {
+            csvFile.push(data);
+            console.log('Fila leída:', data);
+        })
+        .on('end', async () => {
+            csvFile.shift();
+
+            try {
+                const sequelize = await Pelicula.sequelize.sync();
+                const importadas = [];
+                for (const row of csvFile) {
+                    const [id, description, premiere] = row;
+
+                    const existingPeliculaQuery = `SELECT * FROM Peliculas WHERE id = '${id}'`;
+                    const [existingPelicula, _] = await sequelize.query(existingPeliculaQuery);
+
+                    if (existingPelicula.length > 0) {
+                        console.log(`Película con el ID ${id} ya existe en la base de datos. Se descartará.`);
+                        continue;
+                    }
+
+                    const createPeliculaQuery = `INSERT INTO Peliculas (id, description, premiere) VALUES ('${id}', '${description}', '${premiere}')`;
+                    await sequelize.query(createPeliculaQuery);
+
+                    importadas.push({
+                        id: id,
+                        description: description,
+                        premiere: parseInt(premiere)
+                    });
+                }
+
+                console.log('Importación de películas completada.');
+                res.status(200).json({ importadas });
+            } catch (error) {
+                console.error('Error al importar las películas:', error);
+                res.status(500).json({ error: 'Error al importar las películas' });
+            }
+        });
+
+    stream.pipe(fileStream);
+}
+
+
 
 module.exports = router;

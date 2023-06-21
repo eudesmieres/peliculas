@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
-const bodyParser = require("body-parser"); // Importa body-parser
+const bodyParser = require("body-parser");
 const router = require('./router/peliculaRouter');
 
 const app = express();
