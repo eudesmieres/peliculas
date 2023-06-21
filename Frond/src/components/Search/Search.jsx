@@ -15,7 +15,7 @@ const Search = () => {
 
   const fetchMovies = async () => {
     try {
-      const encodedId = encodeURIComponent(searchTerm); // Codificar el valor del parámetro id
+      const encodedId = encodeURIComponent(searchTerm); // Codificador el valor del parámetro id
       const url = `http://localhost:3001/search?id=${encodedId}&pagina=${currentPage}`;
 
       const response = await axios.get(url);
@@ -23,7 +23,7 @@ const Search = () => {
       const { peliculaEncontrada, peliculasPaginadas, paginaActual, totalPaginas } = response.data;
 
       if (response.status === 404) {
-        // Película no encontrada
+        // Cuando arroja un error 404
         setFoundMovie(null);
         setMovies(peliculasPaginadas);
         setCurrentPage(paginaActual);
