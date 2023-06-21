@@ -132,6 +132,48 @@ router.route('/peliculas')
             console.error('Error al obtener la película:', error);
             res.status(500).json('Error al obtener la película');
         }
+    })
+    .get(async (req, res) => {
+        const { id, pagina } = req.query;
+        const itemsPorPagina = 3; // Número de películas por página
+
+        try {
+            let query = 'SELECT * FROM Peliculas';
+
+            if (id) {
+                query += ` WHERE id LIKE '%${id}%'`;
+            }
+
+            const countQuery = 'SELECT COUNT(*) AS total FROM Peliculas'; // Consulta para obtener el recuento total
+            const [countResult] = await Pelicula.sequelize.query(countQuery);
+            const totalPeliculas = countResult[0][0].total; // Recuento total de películas
+
+            const totalPaginas = Math.ceil(totalPeliculas / itemsPorPagina); // Cálculo del número total de páginas
+
+            const paginaActual = parseInt(pagina) || 1; // Página actual (predeterminada: 1)
+            const offset = (paginaActual - 1) * itemsPorPagina; // Cálculo del desplazamiento (offset)
+            query += ` LIMIT ${itemsPorPagina} OFFSET ${offset}`;
+
+            const [peliculas, _] = await Pelicula.sequelize.query(query);
+
+            if (peliculas.length === 0) {
+                res.status(404).json('No se encontraron películas');
+                return;
+            }
+
+            // Envío del encabezado x-total-count en la respuesta
+            res.setHeader('x-total-count', totalPeliculas);
+
+            // Envío de la respuesta con las películas y la información de paginación
+            res.status(200).json({
+                peliculas,
+                paginaActual,
+                totalPaginas,
+            });
+        } catch (error) {
+            console.error('Error al obtener las películas:', error);
+            res.status(500).json('Error al obtener las películas');
+        }
     });
 
 
