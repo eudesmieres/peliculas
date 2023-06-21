@@ -117,7 +117,7 @@ router.route('/peliculas')
         }
     })
     .get(async (req, res) => {
-
+        console.log('----ANTES DE ENTRAR AQUI');
         try {
             const getPeliculaQuery = 'SELECT * FROM Peliculas';;
             const [peliculas, _] = await Pelicula.sequelize.query(getPeliculaQuery);
@@ -133,50 +133,10 @@ router.route('/peliculas')
             res.status(500).json('Error al obtener la película');
         }
     })
-    .get(async (req, res) => {
-        const { id, pagina } = req.query;
-        const itemsPorPagina = 3; // Número de películas por página
-
-        try {
-            let query = 'SELECT * FROM Peliculas';
-
-            if (id) {
-                query += ` WHERE id LIKE '%${id}%'`;
-            }
-
-            const countQuery = 'SELECT COUNT(*) AS total FROM Peliculas'; // Consulta para obtener el recuento total
-            const [countResult] = await Pelicula.sequelize.query(countQuery);
-            const totalPeliculas = countResult[0][0].total; // Recuento total de películas
-
-            const totalPaginas = Math.ceil(totalPeliculas / itemsPorPagina); // Cálculo del número total de páginas
-
-            const paginaActual = parseInt(pagina) || 1; // Página actual (predeterminada: 1)
-            const offset = (paginaActual - 1) * itemsPorPagina; // Cálculo del desplazamiento (offset)
-            query += ` LIMIT ${itemsPorPagina} OFFSET ${offset}`;
-
-            const [peliculas, _] = await Pelicula.sequelize.query(query);
-
-            if (peliculas.length === 0) {
-                res.status(404).json('No se encontraron películas');
-                return;
-            }
-
-            // Envío del encabezado x-total-count en la respuesta
-            res.setHeader('x-total-count', totalPeliculas);
-
-            // Envío de la respuesta con las películas y la información de paginación
-            res.status(200).json({
-                peliculas,
-                paginaActual,
-                totalPaginas,
-            });
-        } catch (error) {
-            console.error('Error al obtener las películas:', error);
-            res.status(500).json('Error al obtener las películas');
-        }
-    });
 
 
+// Variable global para almacenar todas las películas importadas
+let importadas = [];
 
 // Endpoint para subir el archivo CSV y persistir las películas en la base de datos
 router.post('/importarPeliculas', upload.single('csvFile'), async (req, res) => {
@@ -198,7 +158,7 @@ function uploadCsv(req, res, path) {
 
             try {
                 const sequelize = await Pelicula.sequelize.sync();
-                const importadas = [];
+                // const importadas = [];
                 for (const row of csvFile) {
                     const [id, description, premiere] = row;
 
@@ -230,6 +190,55 @@ function uploadCsv(req, res, path) {
 
     stream.pipe(fileStream);
 }
+
+router.get('/search', async (req, res) => {
+    console.log('-----ARRAY DE PELISSSSS:-----', importadas);
+    const { id, pagina } = req.query;
+    const itemsPorPagina = 10; // Número de películas por página
+
+
+
+    try {
+        // Buscar película en el arreglo por ID
+        const peliculaEncontrada = importadas.find((pelicula) => pelicula.id === id);
+
+        if (!peliculaEncontrada) {
+            res.status(404).json('No se encontró la película');
+            return;
+        }
+
+        // Obtener todas las películas para el listado completo
+        const totalPeliculas = importadas.length;
+
+        // Calcular el número total de páginas
+        const totalPaginas = Math.ceil(totalPeliculas / itemsPorPagina);
+
+        // Validar y calcular la página actual
+        const paginaActual = parseInt(pagina) || 1;
+        if (paginaActual < 1 || paginaActual > totalPaginas) {
+            res.status(400).json('Página inválida');
+            return;
+        }
+
+        // Calcular el índice inicial y final para el paginado
+        const inicio = (paginaActual - 1) * itemsPorPagina;
+        const fin = inicio + itemsPorPagina;
+
+        // Obtener las películas en el rango de la página actual
+        const peliculasPaginadas = importadas.slice(inicio, fin);
+
+        // Enviar la respuesta con la película encontrada y el listado paginado
+        res.status(200).json({
+            peliculaEncontrada,
+            peliculasPaginadas,
+            paginaActual,
+            totalPaginas,
+        });
+    } catch (error) {
+        console.error('Error al buscar la película:', error);
+        res.status(500).json('Error al buscar la película');
+    }
+});
 
 
 

@@ -4,35 +4,51 @@ import styles from './Search.module.css';
 
 const Search = () => {
   const [movies, setMovies] = useState([]);
+  const [foundMovie, setFoundMovie] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-    fetchMovies();
+    fetchMovies(currentPage);
   }, [currentPage, searchTerm]);
 
   const fetchMovies = async () => {
     try {
-      const response = await axios.get('http://localhost:3001/peliculas', {
-        params: {
-          id: searchTerm,
-          pagina: currentPage
-        }
-      });
-      setMovies(response.data);
-      setTotalPages(Math.ceil(response.headers['x-total-count'] / 3)); // Assuming 10 movies per page
+      const encodedId = encodeURIComponent(searchTerm); // Codificar el valor del parámetro id
+      const url = `http://localhost:3001/search?id=${encodedId}&pagina=${currentPage}`;
+
+      const response = await axios.get(url);
+   
+      const { peliculaEncontrada, peliculasPaginadas, paginaActual, totalPaginas } = response.data;
+
+      if (response.status === 404) {
+        // Película no encontrada
+        setFoundMovie(null);
+        setMovies(peliculasPaginadas);
+        setCurrentPage(paginaActual);
+        setTotalPages(totalPaginas);
+        console.log('Error 404 pelicula no encontrada:', response.data);
+        return;
+      }
+
+      setFoundMovie(peliculaEncontrada);
+      setMovies(peliculasPaginadas);
+      setCurrentPage(paginaActual);
+      setTotalPages(totalPaginas);
     } catch (error) {
-      console.error('Error fetching movies:', error);
+      console.error('Error en la Busqueda de pelicula:', error);
     }
   };
 
   const handleSearchChange = (event) => {
+    event.preventDefault()
     setSearchTerm(event.target.value);
+    setFoundMovie(null);
   };
 
   const handleSearch = () => {
-    setCurrentPage(1);
+    
   };
 
   const handlePageChange = (page) => {
@@ -52,15 +68,25 @@ const Search = () => {
         <button onClick={handleSearch}>Buscar</button>
       </div>
 
-      <ul className={styles.movieList}>
-        {movies.map((movie) => (
-          <li key={movie.id} className={styles.movieItem}>
-            <span>Título: {movie.id}</span>
-            <span>Descripción: {movie.description}</span>
-            <span>Año: {movie.premiere}</span>
-          </li>
-        ))}
-      </ul>
+      {foundMovie ? (
+  <div className={styles.movieDetails}>
+    <span>Título: {foundMovie.id}</span>
+    <span>Descripción: {foundMovie.description}</span>
+    <span>Año: {foundMovie.premiere}</span>
+  </div>
+) : (
+  <ul className={styles.movieList}>
+    <p>Pelicula no encontrada</p>
+    {movies?.map((movie) => (
+      <li key={movie.id} className={styles.movieItem}>
+        <span>Título: {movie.id}</span>
+        <span>Descripción: {movie.description}</span>
+        <span>Año: {movie.premiere}</span>
+      </li>
+    ))}
+  </ul>
+)}
+
 
       {totalPages > 1 && (
         <div className={styles.pagination}>
