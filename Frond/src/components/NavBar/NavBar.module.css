@@ -1,0 +1,26 @@
+.NavBar {
+    background-color: #05b6a4;
+    padding: 10px;
+}
+
+.NavList {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    padding: 0;
+}
+
+.NavItem {
+    margin-right: 10px;
+}
+
+.NavItem a {
+    text-decoration: none;
+    color: #333;
+    padding: 5px;
+}
+
+.NavItem a:hover {
+    color: #000;
+    font-weight: bold;
+}
