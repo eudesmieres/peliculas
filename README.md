@@ -1,70 +1,75 @@
-# Getting Started with Create React App
+# Peliculas
+Este es un proyecto de React.js iniciado con create-react-app.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Tecnologías utilizadas
+- React.js
+- Node.js
+- Express.js
+- Mysql
+- Sequelize
+- Axios
+- JavaScript
+- CSS
+- Git
 
-## Available Scripts
+Antes de ejecutar el proyecto, asegúrate de tener instalado lo siguiente:
 
-In the project directory, you can run:
+- Node.js (versión 18.12.1)
+- NPM  o Yarn
+- nodemon (versión 2.0.22)
+- react (versión 18.2.0)
 
-### `npm start`
+## Configuración
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Sigue los pasos a continuación para configurar el proyecto:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. Clona el repositorio en tu máquina local:
+git clone: https://github.com/eudesmieres/peliculas.git
 
-### `npm test`
+2. Instala las dependencias del proyecto:
+ npm install
+# or
+yarn install
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Uso
 
-### `npm run build`
+Sigue los pasos a continuación para ejecutar el proyecto:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. Inicia la aplicación:
+Ejecute el servidor de desarrollo:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+npm start
+# or
+yarn dev
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Abre tu navegador web y visita la siguiente URL: http://localhost:3000 para ver el resultado.
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## Configuración de la base de datos
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Crea una base de datos en tu MySQL con el nombre peliculas: 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+   CREATE DATABASE peliculas;
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+2. Verifica que la base de datos se haya creado correctamente ejecutando el siguiente comando:
 
-## Learn More
+   SHOW DATABASES;
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. Crea un archivo de configuración .env en la raíz de la Carpeta Back.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+4. Abre el archivo .env y proporciona los siguientes valores para configurar la conexión a la base de datos:
 
-### Code Splitting
+DB_USER=tu_usuario
+DB_PASSWORD=tu_contraseña
+DB_HOST=localhost
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Asegúrate de reemplazar tu_usuario y tu_contraseña con tus propias credenciales.
 
-### Analyzing the Bundle Size
+Guarda el archivo .env.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+5. Ahora puedes utilizarla y establecer la conexión utilizando las credenciales correspondientes en el archivo .env.
 
-### Making a Progressive Web App
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Información Adicional
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Si deseas cargar archivos CSV en el proyecto el separador que se trabaja en este es  ";"

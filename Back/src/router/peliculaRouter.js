@@ -85,7 +85,7 @@ router.route('/peliculas')
         }
     })
     .get(async (req, res) => {
-        console.log('----ANTES DE ENTRAR AQUI');
+
         try {
             const getPeliculaQuery = 'SELECT * FROM Peliculas';;
             const [peliculas, _] = await Pelicula.sequelize.query(getPeliculaQuery);
