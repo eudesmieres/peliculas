@@ -44,7 +44,7 @@ const Form = () => {
         <h2>Datos Importados</h2>
         <ul className={styles.list}>
           {importedData.map((fila, index) => { // map para mostrar los datos cargados en pantalla
-            //console.log('----Fila:----', fila);
+          
             return (
               <li key={index}>
                 <strong>Título: </strong>
